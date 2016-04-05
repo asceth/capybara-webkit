@@ -1821,13 +1821,14 @@ describe Capybara::Webkit::Driver do
 
   context "no response app" do
     let(:driver) do
-      driver_for_html(<<-HTML, browser: browser)
+      driver_for_html(<<-HTML)
         <html><body>
           <form action="/error"><input type="submit"/></form>
         </body></html>
       HTML
     end
 
+    let!(:connection) { fork_connection }
     before { visit("/") }
 
     it "raises a webkit error for the requested url" do
@@ -1850,9 +1851,6 @@ describe Capybara::Webkit::Driver do
       connection.stub(:puts)
       connection.stub(:print)
     end
-
-    let(:browser) { Capybara::Webkit::Browser.new(connection) }
-    let(:connection) { Capybara::Webkit::Connection.new }
   end
 
   context "custom font app" do
@@ -2722,7 +2720,7 @@ CACHE MANIFEST
   describe "url whitelisting", skip_if_offline: true do
     it_behaves_like "output writer" do
       let(:driver) do
-        driver_for_html(<<-HTML, browser: browser)
+        driver_for_html(<<-HTML)
           <<-HTML
             <html>
               <body>
@@ -2885,7 +2883,7 @@ CACHE MANIFEST
   describe "logger app" do
     it_behaves_like "output writer" do
       let(:driver) do
-        driver_for_html("<html><body>Hello</body></html>", browser: browser)
+        driver_for_html("<html><body>Hello</body></html>")
       end
 
       it "logs nothing in normal mode" do
@@ -3066,7 +3064,7 @@ CACHE MANIFEST
     it_behaves_like "output writer" do
       let(:driver) do
         count = 0
-        driver_for_app browser: browser do
+        driver_for_app do
           get "/" do
             count += 1
             <<-HTML
@@ -3111,17 +3109,15 @@ CACHE MANIFEST
 
   context "when the driver process crashes" do
     let(:driver) do
-      driver_for_app browser: browser do
+      driver_for_app do
         get "/" do
           "<html><body>Relaunched</body></html>"
         end
       end
     end
 
-    let(:browser) { Capybara::Webkit::Browser.new(connection) }
-    let(:connection) { Capybara::Webkit::Connection.new }
-
     it "reports and relaunches on reset" do
+      connection = fork_connection
       Process.kill "KILL", connection.pid
       expect { driver.reset! }.to raise_error(Capybara::Webkit::CrashError)
       visit "/"
@@ -3157,6 +3153,8 @@ CACHE MANIFEST
           conn.close
         end
       end
+
+      fork_connection
     end
 
     after do
@@ -3190,9 +3188,7 @@ CACHE MANIFEST
       end
     end
 
-    let(:driver) { driver_for_html("", browser: browser) }
-    let(:browser) { Capybara::Webkit::Browser.new(connection) }
-    let(:connection) { Capybara::Webkit::Connection.new }
+    let(:driver) { driver_for_html("") }
   end
 
   context "skip image loading" do
@@ -3295,6 +3291,8 @@ CACHE MANIFEST
         config.use_proxy host: @host, port: @port, user: @user, pass: @pass
       end
 
+      fork_connection
+
       driver.visit @url
       @proxy_requests.size.should eq 2
       @request = @proxy_requests[-1]
@@ -3306,7 +3304,7 @@ CACHE MANIFEST
     end
 
     let(:driver) do
-      driver_for_html("", browser: nil)
+      driver_for_html("")
     end
 
     it "uses the HTTP proxy correctly" do
