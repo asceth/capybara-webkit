@@ -66,13 +66,11 @@ module AppRunner
     }
   end
 
-  private
-
   def self.build_driver
     Capybara::Webkit::Driver.new(app, options.merge(browser: browser))
   end
 
-  def self.options
+  private_class_method def self.options
     configuration.to_hash
   end
 
