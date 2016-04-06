@@ -70,9 +70,10 @@ module AppRunner
     Capybara::Webkit::Driver.new(app, options.merge(browser: browser))
   end
 
-  private_class_method def self.options
+  def self.options
     configuration.to_hash
   end
+  private_class_method :options
 
   def self.included(example_group)
     example_group.class_eval do
