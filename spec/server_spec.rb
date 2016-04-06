@@ -2,9 +2,7 @@ require "spec_helper"
 require "capybara/webkit/server"
 
 describe Capybara::Webkit::Connection do
-  it "kills the process when the parent process dies",
-    skip_on_windows: true,
-    skip_on_jruby: true do
+  it "ensures the process ends", skip_on_windows: true, skip_on_jruby: true do
     read_io, write_io = IO.pipe
 
     fork_pid = fork do
@@ -43,7 +41,7 @@ describe Capybara::Webkit::Connection do
     start_timeout = 0.5
     stub_const(
       "Capybara::Webkit::Server::WEBKIT_SERVER_START_TIMEOUT",
-      start_timeout
+      start_timeout,
     )
 
     error_string =
@@ -121,7 +119,7 @@ describe Capybara::Webkit::Connection do
       [
         200,
         { "Content-Type" => "text/html", "Content-Length" => body.size.to_s },
-        [body]
+        [body],
       ]
     end
     @rack_server = Capybara::Server.new(@app)

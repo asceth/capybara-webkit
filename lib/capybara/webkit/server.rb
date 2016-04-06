@@ -13,8 +13,8 @@ module Capybara
         if options.has_key?(:stderr)
           @output_target = options[:stderr]
         elsif options.has_key?(:stdout)
-          warn "[DEPRECATION] The Capybara::Webkit::Connection `stdout` option " \
-            "is deprecated. Please use `stderr` instead."
+          warn "[DEPRECATION] The Capybara::Webkit::Connection `stdout` " \
+            "option is deprecated. Please use `stderr` instead."
           @output_target = options[:stdout]
         else
           @output_target = $stderr
@@ -44,7 +44,7 @@ module Capybara
           raise(
             ConnectionError,
             "#{SERVER_PATH} failed to start after " \
-            "#{WEBKIT_SERVER_START_TIMEOUT} seconds."
+            "#{WEBKIT_SERVER_START_TIMEOUT} seconds.",
           )
         end
       end
